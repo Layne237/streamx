@@ -1,0 +1,6 @@
+{
+  "name": "StreamX",
+  "description": "StreamX - Immersive, cinematic streaming platform for movies and anime with a high-fidelity dark neon aesthetic.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
