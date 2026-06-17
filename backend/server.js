@@ -1,4 +1,5 @@
 import express from 'express';
+import cors from 'cors';
 import helmet from 'helmet';
 import dotenv from 'dotenv';
 
@@ -19,32 +20,29 @@ const app = express();
 const PORT = parseInt(process.env.PORT, 10) || 3001;
 const FRONTEND_URL = process.env.FRONTEND_URL || 'https://streamx-lyart.vercel.app';
 
-const allowedOrigins = [
-  'https://streamx-lyart.vercel.app',
-  'http://localhost:5173',
-  'http://localhost:3000'
-];
+const corsOptions = {
+  origin: function (origin, callback) {
+    const allowedOrigins = [
+      'https://streamx-lyart.vercel.app',
+      'http://localhost:5173',
+      'http://localhost:3000',
+      FRONTEND_URL
+    ];
+    // Allow requests with no origin (server-to-server, curl, etc.)
+    if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      console.log('CORS blocked origin:', origin);
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+};
 
-if (FRONTEND_URL && !allowedOrigins.includes(FRONTEND_URL)) {
-  allowedOrigins.push(FRONTEND_URL);
-}
-
-app.use((req, res, next) => {
-  const origin = req.headers.origin;
-
-  if (origin && allowedOrigins.includes(origin)) {
-    res.header('Access-Control-Allow-Origin', origin);
-  }
-  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-  res.header('Access-Control-Allow-Credentials', 'true');
-
-  if (req.method === 'OPTIONS') {
-    return res.status(200).end();
-  }
-
-  next();
-});
+app.use(cors(corsOptions));
+app.options('*', cors(corsOptions));
 
 app.use(helmet());
 
