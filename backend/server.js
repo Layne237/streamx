@@ -5,6 +5,8 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
+console.log('CORS allowed origin:', process.env.FRONTEND_URL);
+
 import { apiLimiter } from './src/middleware/rateLimiter.js';
 
 import authRoutes from './src/routes/auth.js';
