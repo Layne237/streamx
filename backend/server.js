@@ -1,5 +1,4 @@
 import express from 'express';
-import cors from 'cors';
 import helmet from 'helmet';
 import dotenv from 'dotenv';
 
@@ -18,13 +17,36 @@ import adminRoutes from './src/routes/admin.js';
 
 const app = express();
 const PORT = parseInt(process.env.PORT, 10) || 3001;
-const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:5173';
+const FRONTEND_URL = process.env.FRONTEND_URL || 'https://streamx-lyart.vercel.app';
+
+const allowedOrigins = [
+  'https://streamx-lyart.vercel.app',
+  'http://localhost:5173',
+  'http://localhost:3000'
+];
+
+if (FRONTEND_URL && !allowedOrigins.includes(FRONTEND_URL)) {
+  allowedOrigins.push(FRONTEND_URL);
+}
+
+app.use((req, res, next) => {
+  const origin = req.headers.origin;
+
+  if (origin && allowedOrigins.includes(origin)) {
+    res.header('Access-Control-Allow-Origin', origin);
+  }
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  res.header('Access-Control-Allow-Credentials', 'true');
+
+  if (req.method === 'OPTIONS') {
+    return res.status(200).end();
+  }
+
+  next();
+});
 
 app.use(helmet());
-app.use(cors({
-  origin: process.env.FRONTEND_URL || 'http://localhost:5173',
-  credentials: true
-}));
 
 app.use((req, res, next) => {
   if (req.path === '/api/payments/webhook') {
